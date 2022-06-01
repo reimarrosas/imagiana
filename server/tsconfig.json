@@ -2,9 +2,7 @@
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
-    "lib": [
-      "ESNext"
-    ],
+    "lib": ["ESNext"],
     "checkJs": true,
     "outDir": "./dist",
     "rootDir": "./src",
@@ -25,10 +23,11 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": ["./index.d.ts", "./node_modules/@types"]
   },
-  "exclude": [
-    "migrations",
-    "**/*.js"
-  ]
+  "exclude": ["migrations", "**/*.js"],
+  "ts-node": {
+      "files": true
+  }
 }
