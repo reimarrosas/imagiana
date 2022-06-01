@@ -34,7 +34,7 @@ app.use(
     name: "imgn_sid",
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: process.env["NODE_ENV"] === "production",
       sameSite: "lax",
     },
   })
@@ -46,8 +46,11 @@ app.get("/", (_req, res) => {
   });
 });
 
-import indexRouter from "./routes/router.routes";
+import router from "./routes/router.routes";
+import { error, notFound } from "./controllers/error.controller";
 
-app.use(indexRouter);
+app.use("/api", router);
+app.use(notFound);
+app.use(error);
 
 export default app;

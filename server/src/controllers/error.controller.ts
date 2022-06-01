@@ -10,9 +10,10 @@ export const notFound: RequestHandler = (req, _res, next) => {
 export const error: ErrorRequestHandler = (err, _req, res, _next) => {
   const logContents = { err };
   err = err.statusCode ? err : new HttpInternal();
+
   if (err.statusCode >= 500) {
     logger.error(logContents);
-  } else {
+  } else if (err.statusCode > 400) {
     logger.warn(logContents);
   }
 
