@@ -10,7 +10,11 @@ import {
   getUserByEmail,
   verifyUser,
 } from "../db/services/auth.service";
-import { HttpBadRequest, HttpInternal } from "../utils/httpErrors";
+import {
+  HttpBadRequest,
+  HttpInternal,
+  HttpUnauthorized,
+} from "../utils/httpErrors";
 import { urlRoot } from "../utils/constants";
 import { nanoid } from "nanoid";
 
@@ -170,4 +174,9 @@ export const logout: RequestHandler = async (req, res, _next) => {
     message: "Logout successful!",
   };
   res.send(response);
+};
+
+export const authorize: RequestHandler = async (req, _res, next) => {
+  if (!req.session.user) throw new HttpUnauthorized();
+  return next();
 };

@@ -1,13 +1,13 @@
 export interface ControllerResponse {
-    success: boolean;
-    message: string;
-    [key: string]: any;
+  success: boolean;
+  message: string;
+  [key: string]: any;
 }
 
 export interface UserInfo {
-    id: number;
-    fullName: string;
-    email: string;
+  id: number;
+  fullName: string;
+  email: string;
 }
 
 export interface AuthCreds {
@@ -17,6 +17,11 @@ export interface AuthCreds {
 
 export interface SignupCreds extends AuthCreds {
   fullName: string;
+}
+
+export interface PostData {
+  description: string;
+  imageData: string;
 }
 
 interface BaseEntity {
@@ -36,3 +41,11 @@ export interface VerificationIds extends BaseEntity {
   verificationId: string;
   userId: number;
 }
+
+export interface Posts extends BaseEntity {
+  description: string;
+  imageUrl: string;
+  userId: number;
+}
+
+export type PostQuery = Posts & Partial<Users>;
