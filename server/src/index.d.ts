@@ -48,4 +48,9 @@ export interface Posts extends BaseEntity {
   userId: number;
 }
 
+export interface Likes {
+  userId: number;
+  postId: number;
+}
+
 export type PostQuery = Posts & Partial<Users>;
