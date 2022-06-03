@@ -2,9 +2,17 @@ import type { RequestHandler } from "express";
 import { v2 as cloudinary } from "cloudinary";
 
 import { ControllerResponse, PostData } from "..";
-import { HttpBadRequest, HttpInternal } from "../utils/httpErrors";
+import {
+  HttpBadRequest,
+  HttpForbidden,
+  HttpInternal,
+} from "../utils/httpErrors";
 import { cloudinaryMaxDataUriLength } from "../utils/constants";
-import { createPost, getAllPosts } from "../db/services/posts.service";
+import {
+  createPost,
+  deletePost,
+  getAllPosts,
+} from "../db/services/posts.service";
 
 const validatePostData = (postData: Partial<PostData>): PostData => {
   const { description, imageData } = postData;
@@ -54,4 +62,32 @@ export const create: RequestHandler = async (req, res, _next) => {
   };
 
   res.status(201).send(response);
+};
+
+export const delPost: RequestHandler = async (req, res, _next) => {
+  const { postId } = req.query;
+
+  if (typeof postId !== "string") {
+    throw new HttpBadRequest("Post ID required!");
+  }
+
+  const id = parseInt(postId);
+
+  if (!id) {
+    throw new HttpBadRequest("Post ID must be numeric!");
+  }
+
+  const deletedPost = await deletePost(id, req.session.user.id);
+
+  if (deletedPost.length === 0) {
+    throw new HttpForbidden("Post deletion forbidden!");
+  }
+
+  const response: ControllerResponse = {
+    success: true,
+    message: `Post ${id} deletion successful!`,
+    query: deletedPost,
+  };
+
+  res.send(response);
 };

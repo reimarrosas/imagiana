@@ -18,4 +18,5 @@ export const getAllPosts = async (): Promise<PostQuery[]> =>
 export const createPost = async (post: Partial<Posts>) =>
   await db<Posts>("posts").insert(post).returning("*");
 
-const pq: PostQuery = {};
+export const deletePost = async (id: number, userId: number) =>
+  await db<Posts>("posts").where({ id, userId }).del().returning("*");

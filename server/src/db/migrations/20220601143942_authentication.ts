@@ -4,9 +4,9 @@ export async function up(knex: Knex): Promise<void> {
   return knex.schema
     .createTable("users", (t) => {
       t.bigIncrements("id").primary();
-      t.string("fullName").notNullable();
-      t.string("email").unique().notNullable();
-      t.string("password").notNullable();
+      t.text("fullName").notNullable();
+      t.text("email").unique().notNullable();
+      t.text("password").notNullable();
       t.boolean("isVerified").defaultTo(false);
       t.timestamp("createdAt").defaultTo(knex.fn.now());
       t.timestamp("updatedAt").defaultTo(knex.fn.now());
