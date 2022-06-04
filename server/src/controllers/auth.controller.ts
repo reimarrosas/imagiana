@@ -17,6 +17,7 @@ import {
 } from "../utils/httpErrors";
 import { urlRoot } from "../utils/constants";
 import { nanoid } from "nanoid";
+import { validateIdQueryParam } from "../utils/validateIdQueryParam";
 
 const isEmailValid = (email: string): boolean =>
   /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(
@@ -147,7 +148,7 @@ export const signup: RequestHandler = async (req, res, _next) => {
 };
 
 export const verify: RequestHandler = async (req, res, _next) => {
-  const { id } = req.query;
+  const id = validateIdQueryParam(req.query["id"], "Verification");
 
   if (typeof id !== "string")
     throw new HttpBadRequest("Verification ID required!");

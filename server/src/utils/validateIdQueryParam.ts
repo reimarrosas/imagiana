@@ -1,6 +1,6 @@
 import { HttpBadRequest } from "./httpErrors";
 
-type IDType = "Comment" | "Post" | "User";
+type IDType = "Comment" | "Post" | "User" | "Verification";
 
 export const validateIdQueryParam = (id: unknown, idType: IDType): number => {
   if (typeof id !== "string") {

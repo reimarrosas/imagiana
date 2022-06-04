@@ -13,6 +13,7 @@ import {
   deletePost,
   getAllPosts,
 } from "../db/services/posts.service";
+import { validateIdQueryParam } from "../utils/validateIdQueryParam";
 
 const validatePostData = (postData: Partial<PostData>): PostData => {
   const { description, imageData } = postData;
@@ -65,19 +66,9 @@ export const create: RequestHandler = async (req, res, _next) => {
 };
 
 export const delPost: RequestHandler = async (req, res, _next) => {
-  const { postId } = req.query;
+  const postId = validateIdQueryParam(req.query["id"], "Post");
 
-  if (typeof postId !== "string") {
-    throw new HttpBadRequest("Post ID required!");
-  }
-
-  const id = parseInt(postId);
-
-  if (!id) {
-    throw new HttpBadRequest("Post ID must be numeric!");
-  }
-
-  const deletedPost = await deletePost(id, req.session.user.id);
+  const deletedPost = await deletePost(postId, req.session.user.id);
 
   if (deletedPost.length === 0) {
     throw new HttpForbidden("Post deletion forbidden!");
@@ -85,8 +76,7 @@ export const delPost: RequestHandler = async (req, res, _next) => {
 
   const response: ControllerResponse = {
     success: true,
-    message: `Post ${id} deletion successful!`,
-    query: deletedPost,
+    message: `Post ${postId} deletion successful!`,
   };
 
   res.send(response);
