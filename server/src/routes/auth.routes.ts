@@ -15,10 +15,11 @@ router.post("/signup", signup);
 router.post("/login", login);
 router.get("/verify", verify);
 router.get("/logout", logout);
-router.get("/authStatus", authorize, (_req, res) => {
+router.get("/status", authorize, (req, res) => {
   const response: ControllerResponse = {
     message: "User is logged in!",
     success: true,
+    user: req.session.user,
   };
   res.send(response);
 });

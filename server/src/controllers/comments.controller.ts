@@ -50,7 +50,7 @@ export const create: RequestHandler = async (req, res, _next) => {
 
 export const update: RequestHandler = async (req, res, _next) => {
   const commentData = validateCommentData(req.body);
-  const commentId = validateIdQueryParam(req.query["commentId"], "Comment");
+  const commentId = validateIdQueryParam(req.query["id"], "Comment");
 
   const updated = await updateComment(
     { id: commentId, userId: req.session.user.id },
@@ -70,7 +70,7 @@ export const update: RequestHandler = async (req, res, _next) => {
 };
 
 export const del: RequestHandler = async (req, res, _next) => {
-  const commentId = validateIdQueryParam(req.query["commentId"], "Comment");
+  const commentId = validateIdQueryParam(req.query["id"], "Comment");
 
   const deleted = await deleteComment({
     id: commentId,

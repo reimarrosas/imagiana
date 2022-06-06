@@ -6,7 +6,7 @@ import { like, unlike } from "../controllers/likes.controller";
 const router = express.Router();
 
 router.use(authorize);
-router.put("/", like);
-router.delete("/", unlike);
+router.post("/like", like);
+router.delete("/unlike", unlike);
 
 export default router;

@@ -35,7 +35,6 @@ const validatePostData = (postData: Partial<PostData>): PostData => {
 
 export const getAll: RequestHandler = async (_req, res, _next) => {
   const posts = await getAllPosts();
-  if (posts.length === 0) throw new HttpInternal();
   const response: ControllerResponse = {
     message: "All posts are fetched",
     success: true,

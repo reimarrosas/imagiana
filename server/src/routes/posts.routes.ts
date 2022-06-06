@@ -6,8 +6,8 @@ import { create, delPost, getAll } from "../controllers/posts.controller";
 const router = express.Router();
 
 router.use(authorize);
-router.get("/", getAll);
+router.get("/get", getAll);
 router.post("/create", create);
-router.get("/delete", delPost);
+router.delete("/delete", delPost);
 
 export default router;
