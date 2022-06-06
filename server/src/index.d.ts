@@ -64,4 +64,12 @@ export interface CommentData {
     postId: number;
 }
 
-export type PostQuery = Posts & Partial<Users>;
+export interface PostQuery extends Posts {
+    email: string;
+    fullName: string;
+}
+
+export interface PostResult extends PostQuery {
+    comments: Comments[];
+    likedByUser: boolean;
+}

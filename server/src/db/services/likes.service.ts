@@ -10,3 +10,6 @@ export const likePost = async (like: Likes) =>
 
 export const unlikePost = async (like: Likes) =>
   await db<Likes>("likes").where(like).del();
+
+export const isPostLiked = async (like: Likes) =>
+    await db<Likes>("likes").where(like).first();

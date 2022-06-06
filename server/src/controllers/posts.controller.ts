@@ -1,7 +1,7 @@
 import type { RequestHandler } from "express";
 import { v2 as cloudinary } from "cloudinary";
 
-import { ControllerResponse, PostData } from "..";
+import { ControllerResponse, PostData, PostResult } from "..";
 import {
   HttpBadRequest,
   HttpForbidden,
@@ -14,6 +14,8 @@ import {
   getAllPosts,
 } from "../db/services/posts.service";
 import { validateIdQueryParam } from "../utils/validateIdQueryParam";
+import { getAllCommentsWithPostId } from "../db/services/comments.service";
+import { isPostLiked } from "../db/services/likes.service";
 
 const validatePostData = (postData: Partial<PostData>): PostData => {
   const { description, imageData } = postData;
@@ -33,8 +35,32 @@ const validatePostData = (postData: Partial<PostData>): PostData => {
   };
 };
 
-export const getAll: RequestHandler = async (_req, res, _next) => {
-  const posts = await getAllPosts();
+const fetchAllPosts = async (userId: number) => {
+  const postQueries = await getAllPosts();
+
+  const postResult = postQueries.map(async (p) => ({
+    comments: await getAllCommentsWithPostId(p.id),
+    likedByUser:
+      (await isPostLiked({
+        postId: p.id,
+        userId,
+      })) !== undefined,
+    email: p.email,
+    fullName: p.fullName,
+    id: p.id,
+    description: p.description,
+    imageUrl: p.imageUrl,
+    userId: p.userId,
+    createdAt: p.createdAt,
+    updatedAt: p.updatedAt,
+  }));
+
+  return Promise.all(postResult);
+};
+
+export const getAll: RequestHandler = async (req, res, _next) => {
+  const posts: PostResult[] = await fetchAllPosts(req.session.user.id);
+
   const response: ControllerResponse = {
     message: "All posts are fetched",
     success: true,
