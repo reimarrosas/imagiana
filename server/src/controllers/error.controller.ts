@@ -18,6 +18,7 @@ export const error: ErrorRequestHandler = (err, _req, res, _next) => {
   }
 
   res.status(err.statusCode).send({
-    message: err.toString(),
+    error: err.toString(),
+    message: err.message,
   });
 };

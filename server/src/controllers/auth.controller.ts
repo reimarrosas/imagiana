@@ -24,7 +24,7 @@ const isEmailValid = (email: string): boolean =>
   );
 
 const isPasswordValid = (password: string): boolean =>
-  /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password);
+  /^(?=.*\d)(?=.*[a-zA-Z]).{8,}$/.test(password);
 
 const isAuthCredsValid = (authCreds: Partial<AuthCreds>): AuthCreds => {
   const { email, password } = authCreds;
