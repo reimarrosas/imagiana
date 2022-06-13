@@ -44,6 +44,7 @@ const LoginForm = () => {
             email,
             password,
           }),
+          credentials: "include",
         }
       ).then((raw) => raw.json());
       if (!res.success) {

@@ -70,7 +70,7 @@ const SignupForm = () => {
         setIsSubmitting(false);
         setResult(res.message);
       } else {
-        router.push("/registerSuccess");
+        router.push("/SignupSuccess");
       }
     }
   };

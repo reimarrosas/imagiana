@@ -1,10 +1,10 @@
-import { sessionSecret, sessionStoreUrl } from "./utils/constants";
-
 import path from "path";
 import dotenv from "dotenv";
 dotenv.config({
   path: path.resolve(".", "src", ".env"),
 });
+
+import { clientUrl, sessionSecret, sessionStoreUrl } from "./utils/constants";
 
 import express from "express";
 require("express-async-errors");
@@ -13,7 +13,12 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: clientUrl,
+    credentials: true,
+  })
+);
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());

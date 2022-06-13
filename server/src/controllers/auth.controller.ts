@@ -15,7 +15,7 @@ import {
   HttpInternal,
   HttpUnauthorized,
 } from "../utils/httpErrors";
-import { urlRoot } from "../utils/constants";
+import { clientUrl } from "../utils/constants";
 import { nanoid } from "nanoid";
 
 const isEmailValid = (email: string): boolean =>
@@ -70,7 +70,7 @@ const sendVerificationEmail = async (email: string, verificationId: string) => {
     from: `Imagiana <${process.env["TRANSPORT_EMAIL"]}>`,
     to: email,
     subject: "Verify your email!",
-    html: `Verify your account using this <a href="${urlRoot}/api/auth/verify?id=${verificationId}">link</a>`,
+    html: `Verify your account using this <a href="${clientUrl}/verify/${verificationId}">link</a>`,
   });
 };
 
