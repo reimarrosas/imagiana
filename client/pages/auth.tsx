@@ -15,20 +15,28 @@ const Auth: NextPage = () => {
   const { isLoading, data } = useQuery("authStatus", checkAuthStatus);
 
   useEffect(() => {
-    if (!isLoading && data.success) {
+    if (data?.success) {
       router.push("/");
     }
-  }, [isLoading]);
+  }, [data]);
 
   return (
-    <Loading isLoading={isLoading}>
-      <main>
-        <div className="img-container">
-          <img src="" alt="" />
-        </div>
-        <Tabs tablist={{ Login: <LoginForm />, "Sign Up": <SignupForm /> }} />
-      </main>
-    </Loading>
+    <div className={isLoading ? "min-h-screen grid place-content-center" : ""}>
+      <Loading isLoading={isLoading}>
+        <main className="flex sm:flex-row flex-col min-h-screen">
+          <div className="grid place-content-center sm:order-first order-last basis-2/3 bg-slate-900 p-4">
+            <img src="/images/hero_image.svg" alt="" />
+          </div>
+          <Tabs
+            sectionClass="flex flex-col justify-center p-8 basis-1/3 max-w-3xl"
+            tabClass="flex gap-2 text-lg"
+            btnClass="px-4 py-2"
+            btnSelectedClass="shadow rounded"
+            tablist={{ Login: <LoginForm />, "Sign Up": <SignupForm /> }}
+          />
+        </main>
+      </Loading>
+    </div>
   );
 };
 export default Auth;

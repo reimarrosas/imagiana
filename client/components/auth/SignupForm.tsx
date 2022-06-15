@@ -12,6 +12,7 @@ import {
   verifyPasswordValidator,
 } from "../../utils/validators";
 import Loading from "../commons/Loading";
+import MainButton from "../commons/MainButton";
 import ValidatingFormControl from "../commons/ValidatingFormControl";
 import AuthForm from "./AuthForm";
 
@@ -70,59 +71,61 @@ const SignupForm = () => {
         setIsSubmitting(false);
         setResult(res.message);
       } else {
-        router.push("/SignupSuccess");
+        router.push("/signupSuccess");
       }
     }
   };
 
   return (
-    <Loading isLoading={isSubmitting}>
-      <p>{result}</p>
-      <AuthForm submitHandler={submitHandler}>
-        <ValidatingFormControl
-          type="text"
-          label="Full Name"
-          value={fullNameState.state}
-          change={changeHandler(dispatchFullName, fullNameValidator)}
-          required
-          isValid={fullNameState.isValid}
-          error="Full name must not be empty!"
-        />
-        <ValidatingFormControl
-          type="email"
-          label="Email"
-          value={emailState.state}
-          change={changeHandler(dispatchEmail, emailValidator)}
-          required
-          isValid={emailState.isValid}
-          error="Email has invalid format!"
-        />
-        <ValidatingFormControl
-          type="password"
-          label="Password"
-          value={passwordState.state}
-          change={changeHandler(dispatchPassword, passwordValidator)}
-          required
-          isValid={passwordState.isValid}
-          error="Password must have at least eight characters, one letter and one number"
-        />
-        <ValidatingFormControl
-          type="password"
-          label="Verify Password"
-          value={verifyPasswordState.state}
-          change={changeHandler(
-            dispatchVerifyPassword,
-            verifyPasswordValidator(passwordState.state)
-          )}
-          required
-          isValid={verifyPasswordState.isValid}
-          error="Password does not match!"
-        />
-        <div className="my-2">
-          <button type="submit">Sign Up</button>
-        </div>
-      </AuthForm>
-    </Loading>
+    <div className={isSubmitting ? "grid place-content-center" : ""}>
+      <Loading isLoading={isSubmitting}>
+        <AuthForm submitHandler={submitHandler}>
+          <ValidatingFormControl
+            type="text"
+            label="Full Name"
+            value={fullNameState.state}
+            change={changeHandler(dispatchFullName, fullNameValidator)}
+            required
+            isValid={fullNameState.isValid}
+            error="Full name must not be empty!"
+          />
+          <ValidatingFormControl
+            type="email"
+            label="Email"
+            value={emailState.state}
+            change={changeHandler(dispatchEmail, emailValidator)}
+            required
+            isValid={emailState.isValid}
+            error="Email has invalid format!"
+          />
+          <ValidatingFormControl
+            type="password"
+            label="Password"
+            value={passwordState.state}
+            change={changeHandler(dispatchPassword, passwordValidator)}
+            required
+            isValid={passwordState.isValid}
+            error="Password must have at least eight characters, one letter and one number"
+          />
+          <ValidatingFormControl
+            type="password"
+            label="Verify Password"
+            value={verifyPasswordState.state}
+            change={changeHandler(
+              dispatchVerifyPassword,
+              verifyPasswordValidator(passwordState.state)
+            )}
+            required
+            isValid={verifyPasswordState.isValid}
+            error="Password does not match!"
+          />
+          <p className="text-center text-red-600">{result}</p>
+          <div className="my-6 text-right">
+            <MainButton type="submit">Sign Up</MainButton>
+          </div>
+        </AuthForm>
+      </Loading>
+    </div>
   );
 };
 

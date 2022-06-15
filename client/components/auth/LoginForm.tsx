@@ -6,6 +6,7 @@ import validationReducer, {
 } from "../../utils/validationReducer";
 import { emailValidator, passwordValidator } from "../../utils/validators";
 import Loading from "../commons/Loading";
+import MainButton from "../commons/MainButton";
 import ValidatingFormControl from "../commons/ValidatingFormControl";
 import AuthForm from "./AuthForm";
 
@@ -57,50 +58,52 @@ const LoginForm = () => {
   };
 
   return (
-    <Loading isLoading={isSubmitting}>
-      <p>{result}</p>
-      <AuthForm submitHandler={handleLoginForm}>
-        <ValidatingFormControl
-          type="email"
-          label="Email"
-          value={emailState.state}
-          change={(e) =>
-            dispatchEmail({
-              newState: e.target.value,
-              validator: emailValidator,
-            })
-          }
-          isValid={emailState.isValid}
-          error="Email format invalid!"
-        />
-        <ValidatingFormControl
-          type="password"
-          label="Password"
-          value={passwordState.state}
-          change={(e) =>
-            dispatchPassword({
-              newState: e.target.value,
-              validator: passwordValidator,
-            })
-          }
-          isValid={passwordState.isValid}
-          error="Password must have at least eight characters, one letter and one number!"
-        />
-        <div className="my-2">
-          <input
-            type="checkbox"
-            name="keepLoggedIn"
-            id="keepLoggedIn"
-            checked={keep}
-            onChange={(_) => setKeep(!keep)}
+    <div className={isSubmitting ? "grid place-content-center" : ""}>
+      <Loading isLoading={isSubmitting}>
+        <AuthForm submitHandler={handleLoginForm}>
+          <ValidatingFormControl
+            type="email"
+            label="Email"
+            value={emailState.state}
+            change={(e) =>
+              dispatchEmail({
+                newState: e.target.value,
+                validator: emailValidator,
+              })
+            }
+            isValid={emailState.isValid}
+            error="Email format invalid!"
           />
-          <label htmlFor="keepLoggedIn">Keep logged in?</label>
-        </div>
-        <div className="my-2 text-right">
-          <button type="submit">Login</button>
-        </div>
-      </AuthForm>
-    </Loading>
+          <ValidatingFormControl
+            type="password"
+            label="Password"
+            value={passwordState.state}
+            change={(e) =>
+              dispatchPassword({
+                newState: e.target.value,
+                validator: passwordValidator,
+              })
+            }
+            isValid={passwordState.isValid}
+            error="Password must have at least eight characters, one letter and one number!"
+          />
+          <div className="my-2">
+            <input
+              type="checkbox"
+              name="keepLoggedIn"
+              id="keepLoggedIn"
+              checked={keep}
+              onChange={(_) => setKeep(!keep)}
+            />{" "}
+            <label htmlFor="keepLoggedIn">Keep logged in?</label>
+          </div>
+          <p className="text-center text-red-600">{result}</p>
+          <div className="my-2 text-right">
+            <MainButton type="submit">Login</MainButton>
+          </div>
+        </AuthForm>
+      </Loading>
+    </div>
   );
 };
 

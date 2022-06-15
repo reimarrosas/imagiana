@@ -7,7 +7,7 @@ interface Props {
 }
 
 const AuthForm = ({ formClass, children, submitHandler }: Props) => (
-  <form onSubmit={submitHandler} className={`w-1/4 ${formClass}`}>
+  <form onSubmit={submitHandler} className={`${formClass}`}>
     {children}
   </form>
 );
