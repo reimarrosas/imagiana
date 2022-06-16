@@ -35,7 +35,9 @@ const LoginForm = () => {
       const { state: email } = emailState;
       const { state: password } = passwordState;
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login${
+          keep ? "/?keep=true" : ""
+        }`,
         {
           method: "post",
           headers: {
