@@ -8,17 +8,20 @@ import SignupForm from "../components/auth/SignupForm";
 import Loading from "../components/commons/Loading";
 import Tabs from "../components/commons/Tabs";
 
-import { checkAuthStatus } from "../utils/checkAuthStatus";
+import { checkAuthStatus } from "../utils/queries/checkAuthStatus";
 
 const Auth: NextPage = () => {
   const router = useRouter();
-  const { isLoading, data } = useQuery("authStatus", checkAuthStatus);
+  const { isLoading, data, isFetching } = useQuery(
+    "authStatus",
+    checkAuthStatus
+  );
 
   useEffect(() => {
-    if (data?.success) {
+    if (!isFetching && data?.success) {
       router.push("/");
     }
-  }, [data]);
+  }, [isFetching]);
 
   return (
     <div className={isLoading ? "min-h-screen grid place-content-center" : ""}>

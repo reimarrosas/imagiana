@@ -2,20 +2,24 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
+
+import Navigation from "../components/home/Navigation";
+import MainSection from "../components/home/MainSection";
+
+import { checkAuthStatus } from "../utils/queries/checkAuthStatus";
 import Loading from "../components/commons/Loading";
 
-import { checkAuthStatus } from "../utils/checkAuthStatus";
-
-interface User {
-  id: "string";
+export interface User {
+  id: string;
   fullName: string;
   email: string;
 }
 
 const Home: NextPage = () => {
   const router = useRouter();
-  const { isLoading, data } = useQuery("authStatus", checkAuthStatus);
-  const [user, setUser] = useState<User>();
+  const { isLoading, data, refetch } = useQuery("authStatus", checkAuthStatus);
+  const [isLogoutSuccess, setIsLogoutSuccess] = useState(false);
+  const [user, setUser] = useState<User>({ id: "", email: "", fullName: "" });
   useEffect(() => {
     if (!isLoading) {
       if (!data.success) {
@@ -26,15 +30,18 @@ const Home: NextPage = () => {
     }
   }, [data]);
 
+  useEffect(() => {
+    if (isLogoutSuccess) refetch();
+    return () => setIsLogoutSuccess(false);
+  }, [isLogoutSuccess]);
+
   return (
-    <main
-      className={!data?.success ? "min-h-screen grid place-content-center" : ""}
-    >
-      <Loading isLoading={!data?.success}>
-        <h1 className="text-3xl font-bold underline">Hello, World!</h1>
-        <pre>{user && JSON.stringify(user, null, 4)}</pre>
+    <div className={isLoading ? "grid place-content-center min-h-screen" : ""}>
+      <Loading isLoading={isLoading}>
+        <Navigation user={user} setIsLogoutSuccess={setIsLogoutSuccess} />;
+        <MainSection user={user} />
       </Loading>
-    </main>
+    </div>
   );
 };
 
