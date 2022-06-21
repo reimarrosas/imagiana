@@ -38,7 +38,7 @@ const Home: NextPage = () => {
   return (
     <div className={isLoading ? "grid place-content-center min-h-screen" : ""}>
       <Loading isLoading={isLoading}>
-        <Navigation user={user} setIsLogoutSuccess={setIsLogoutSuccess} />;
+        <Navigation user={user} setIsLogoutSuccess={setIsLogoutSuccess} />
         <MainSection user={user} />
       </Loading>
     </div>
