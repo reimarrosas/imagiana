@@ -1,23 +1,25 @@
-import { NextPage } from "next";
+import {
+  GetServerSideProps,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { useQuery } from "react-query";
+import { dehydrate, QueryClient, useQuery } from "react-query";
 
 import Loading from "../../components/commons/Loading";
-import { verifyEmailAddress } from "../../utils/verifyEmailAddress";
+import { singleUseQueryOption } from "../../utils/constants";
+import { queryBuilder } from "../../utils/queries/queryBuilder";
 
-const Verify: NextPage = () => {
-  const router = useRouter();
-  const { vid } = router.query;
+const verificationQuery = (vid?: string | string[]) =>
+  queryBuilder(`/auth/verify?id=${vid}`, "get", {});
 
+const Verify: NextPage = ({
+  vid,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const { isLoading, isIdle, data } = useQuery(
     "verificationEmail",
-    () => verifyEmailAddress(vid as string),
-    {
-      staleTime: Infinity,
-      cacheTime: Infinity,
-      enabled: !!vid,
-    }
+    () => verificationQuery(vid),
+    singleUseQueryOption
   );
 
   return (
@@ -37,6 +39,24 @@ const Verify: NextPage = () => {
       </div>
     </main>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const queryClient = new QueryClient();
+  const { vid } = ctx.query;
+
+  await queryClient.prefetchQuery(
+    "verificationEmail",
+    () => verificationQuery(vid),
+    singleUseQueryOption
+  );
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+      vid,
+    },
+  };
 };
 
 export default Verify;

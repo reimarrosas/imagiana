@@ -1,8 +1,4 @@
-export const getAllPosts = async () => {
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/get`;
-  const res = await fetch(url, {
-    credentials: "include",
-  });
+import { queryBuilder } from "./queryBuilder";
 
-  return res.json();
-};
+export const postQuery = (header?: Record<string, any>) =>
+  queryBuilder("/posts/get", "get", {}, header);

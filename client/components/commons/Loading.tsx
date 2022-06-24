@@ -1,4 +1,7 @@
+import Image from "next/image";
 import { ReactNode } from "react";
+
+import spinner from "../../public/images/tail-spin.svg";
 
 interface Props {
   isLoading: boolean;
@@ -8,10 +11,7 @@ interface Props {
 const Loading = ({ children, isLoading }: Props) => (
   <>
     {isLoading ? (
-      <img
-        src="/images/tail-spin.svg"
-        alt="Spinning loader for asynchronous data."
-      />
+      <Image src={spinner} alt="Spinning loader for asynchronous data." />
     ) : (
       children
     )}

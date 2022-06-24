@@ -1,5 +1,7 @@
 import { useRouter } from "next/router";
 import { FormEventHandler, useReducer, useState } from "react";
+import { useMutation } from "react-query";
+import { queryBuilder } from "../../utils/queries/queryBuilder";
 
 import validationReducer, {
   ValidationReducer,
@@ -15,9 +17,29 @@ const defaultValidationState = {
   isValid: true,
 };
 
+interface LoginData {
+  email: string;
+  password: string;
+  keep: boolean;
+}
+
 const LoginForm = () => {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const mutation = useMutation(
+    (loginData: LoginData) =>
+      queryBuilder(
+        `/auth/login${loginData.keep ? "/?keep=true" : ""}`,
+        "post",
+        {
+          email: loginData.email,
+          password: loginData.password,
+        }
+      )(),
+    {
+      onSuccess: (data, _v) =>
+        data.success ? router.push("/") : setResult(data.message),
+    }
+  );
   const [emailState, dispatchEmail] = useReducer<ValidationReducer<string>>(
     validationReducer,
     defaultValidationState
@@ -30,38 +52,16 @@ const LoginForm = () => {
 
   const handleLoginForm: FormEventHandler = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
     if (emailState.isValid && passwordState.isValid) {
       const { state: email } = emailState;
       const { state: password } = passwordState;
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login${
-          keep ? "/?keep=true" : ""
-        }`,
-        {
-          method: "post",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-          credentials: "include",
-        }
-      ).then((raw) => raw.json());
-      if (!res.success) {
-        setResult(res.message);
-        setIsSubmitting(false);
-      } else {
-        router.push("/");
-      }
+      mutation.mutate({ email, password, keep });
     }
   };
 
   return (
-    <div className={isSubmitting ? "grid place-content-center" : ""}>
-      <Loading isLoading={isSubmitting}>
+    <div className={mutation.isLoading ? "grid place-content-center" : ""}>
+      <Loading isLoading={mutation.isLoading}>
         <AuthForm submitHandler={handleLoginForm}>
           <ValidatingFormControl
             type="email"

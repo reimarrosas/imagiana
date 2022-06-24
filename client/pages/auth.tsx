@@ -1,20 +1,20 @@
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useQuery } from "react-query";
+import { dehydrate, QueryClient, useQuery } from "react-query";
 
 import LoginForm from "../components/auth/LoginForm";
 import SignupForm from "../components/auth/SignupForm";
 import Loading from "../components/commons/Loading";
 import Tabs from "../components/commons/Tabs";
-
-import { checkAuthStatus } from "../utils/queries/checkAuthStatus";
+import { authStatusQuery } from "../utils/queries/checkAuthStatus";
 
 const Auth: NextPage = () => {
   const router = useRouter();
-  const { isLoading, data, isFetching } = useQuery(
+  const { isFetching, isLoading, data } = useQuery(
     "authStatus",
-    checkAuthStatus
+    authStatusQuery()
   );
 
   useEffect(() => {
@@ -24,11 +24,19 @@ const Auth: NextPage = () => {
   }, [isFetching]);
 
   return (
-    <div className={isLoading ? "min-h-screen grid place-content-center" : ""}>
+    <div
+      className={`${isLoading ? "grid place-content-center min-h-screen" : ""}`}
+    >
       <Loading isLoading={isLoading}>
         <main className="flex sm:flex-row flex-col min-h-screen">
-          <div className="grid place-content-center sm:order-first order-last basis-2/3 bg-slate-900 p-4">
-            <img src="/images/hero_image.svg" alt="" />
+          <div className="grid place-content-center relative sm:order-first order-last basis-2/3 bg-slate-900 p-4">
+            <Image
+              src="/images/hero_image.svg"
+              layout="fill"
+              objectFit="contain"
+              objectPosition="50% 50%"
+              alt=""
+            />
           </div>
           <Tabs
             sectionClass="flex flex-col justify-center p-8 basis-1/3 max-w-3xl"
@@ -42,4 +50,29 @@ const Auth: NextPage = () => {
     </div>
   );
 };
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const queryClient = new QueryClient();
+
+  const res = await queryClient.fetchQuery(
+    "authStatus",
+    authStatusQuery({ Cookie: req.headers.cookie })
+  );
+
+  if (res.success) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  };
+};
+
 export default Auth;

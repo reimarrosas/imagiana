@@ -1,30 +1,27 @@
-import { useEffect } from "react";
-import { useQuery } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 
 import { User } from "../../pages";
-import { logout } from "../../utils/queries/logout";
+import { queryBuilder } from "../../utils/queries/queryBuilder";
 import NavigationLink from "../commons/NavigationLink";
-
-type StateSetter<T> = (_: T) => void;
 
 interface Props {
   user: User;
-  setIsLogoutSuccess: StateSetter<boolean>;
 }
 
-const Navigation = ({ user, setIsLogoutSuccess }: Props) => {
-  const { isFetching, data, refetch } = useQuery("logout", logout, {
-    cacheTime: Infinity,
-    staleTime: Infinity,
-    enabled: false,
+const logoutQuery = queryBuilder("/auth/logout", "post", {});
+
+const Navigation = ({ user }: Props) => {
+  const queryClient = useQueryClient();
+  const mutation = useMutation(() => logoutQuery(), {
+    onSuccess: (data, _v) => {
+      if (data.success) {
+        queryClient.invalidateQueries();
+      }
+    },
   });
 
-  useEffect(() => {
-    if (data?.success) setIsLogoutSuccess(true);
-  }, [isFetching]);
-
   const handleLogout = () => {
-    refetch();
+    mutation.mutate();
   };
 
   return (

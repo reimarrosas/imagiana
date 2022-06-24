@@ -1,13 +1,18 @@
-import type { NextPage } from "next";
+import type {
+  GetServerSideProps,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { useQuery } from "react-query";
+import { useEffect } from "react";
+import { QueryClient, useQuery } from "react-query";
 
 import Navigation from "../components/home/Navigation";
 import MainSection from "../components/home/MainSection";
 
-import { checkAuthStatus } from "../utils/queries/checkAuthStatus";
 import Loading from "../components/commons/Loading";
+import { authStatusQuery } from "../utils/queries/checkAuthStatus";
+import { postQuery } from "../utils/queries/fetchAllPosts";
 
 export interface User {
   id: string;
@@ -15,34 +20,58 @@ export interface User {
   email: string;
 }
 
-const Home: NextPage = () => {
+const Home: NextPage = ({
+  user,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter();
-  const { isLoading, data, refetch } = useQuery("authStatus", checkAuthStatus);
-  const [isLogoutSuccess, setIsLogoutSuccess] = useState(false);
-  const [user, setUser] = useState<User>({ id: "", email: "", fullName: "" });
-  useEffect(() => {
-    if (!isLoading) {
-      if (!data.success) {
-        router.push("/auth");
-      } else {
-        setUser(data.user);
-      }
-    }
-  }, [data]);
+  const { data, isLoading, isFetching } = useQuery(
+    "authStatus",
+    authStatusQuery()
+  );
 
   useEffect(() => {
-    if (isLogoutSuccess) refetch();
-    return () => setIsLogoutSuccess(false);
-  }, [isLogoutSuccess]);
+    if (!isFetching && !data?.success) {
+      router.push("/auth");
+    }
+  }, [isFetching]);
 
   return (
     <div className={isLoading ? "grid place-content-center min-h-screen" : ""}>
       <Loading isLoading={isLoading}>
-        <Navigation user={user} setIsLogoutSuccess={setIsLogoutSuccess} />
+        <Navigation user={user} />
         <MainSection user={user} />
       </Loading>
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const queryClient = new QueryClient();
+
+  const res = await queryClient.fetchQuery(
+    "authStaus",
+    authStatusQuery({ Cookie: req.headers.cookie })
+  );
+
+  if (!res.success) {
+    return {
+      redirect: {
+        destination: "/auth",
+        permanent: false,
+      },
+    };
+  }
+
+  await queryClient.prefetchQuery(
+    "getPosts",
+    postQuery({ Cookie: req.headers.cookie })
+  );
+
+  return {
+    props: {
+      user: res.user,
+    },
+  };
 };
 
 export default Home;

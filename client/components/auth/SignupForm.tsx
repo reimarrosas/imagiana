@@ -1,5 +1,7 @@
 import { useRouter } from "next/router";
 import { ChangeEvent, Dispatch, FormEvent, useReducer, useState } from "react";
+import { useMutation } from "react-query";
+import { queryBuilder } from "../../utils/queries/queryBuilder";
 
 import validationReducer, {
   ValidationAction,
@@ -21,9 +23,22 @@ const defaultValidationState = {
   isValid: true,
 };
 
+interface SignupData {
+  fullName: string;
+  email: string;
+  password: string;
+}
+
 const SignupForm = () => {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const mutation = useMutation(
+    (signupData: SignupData) =>
+      queryBuilder("/auth/signup", "post", signupData)(),
+    {
+      onSuccess: (data, _v) =>
+        data.success ? router.push("/signupSuccess") : setResult(data.message),
+    }
+  );
   const [fullNameState, dispatchFullName] = useReducer<
     ValidationReducer<string>
   >(validationReducer, defaultValidationState);
@@ -46,39 +61,22 @@ const SignupForm = () => {
 
   const submitHandler = async (e: FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     if (
       fullNameState.isValid &&
       emailState.isValid &&
       passwordState.isValid &&
       verifyPasswordState.isValid
     ) {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signup`,
-        {
-          method: "post",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            fullName: fullNameState.state,
-            email: emailState.state,
-            password: passwordState.state,
-          }),
-        }
-      ).then((raw) => raw.json());
-      if (!res.success) {
-        setIsSubmitting(false);
-        setResult(res.message);
-      } else {
-        router.push("/signupSuccess");
-      }
+      const { state: fullName } = fullNameState;
+      const { state: email } = emailState;
+      const { state: password } = passwordState;
+      mutation.mutate({ fullName, email, password });
     }
   };
 
   return (
-    <div className={isSubmitting ? "grid place-content-center" : ""}>
-      <Loading isLoading={isSubmitting}>
+    <div className={mutation.isLoading ? "grid place-content-center" : ""}>
+      <Loading isLoading={mutation.isLoading}>
         <AuthForm submitHandler={submitHandler}>
           <ValidatingFormControl
             type="text"
