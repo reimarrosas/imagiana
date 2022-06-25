@@ -156,7 +156,7 @@ const PostAside = ({
 
 const Post = ({ post, currentUserId }: PostProps) => {
   return (
-    <article className="mx-1 shadow-lg rounded p-4">
+    <article className="mx-1 shadow-lg rounded p-4 mt-8">
       <PostHeader postInfo={post} currentUserId={currentUserId} />
       <PostMain postContent={post} />
       <PostAside postEffects={post} currentUserId={currentUserId} />

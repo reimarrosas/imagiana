@@ -13,7 +13,8 @@ export const getAllPosts = async (): Promise<PostQuery[]> =>
       "users.email",
       "posts.createdAt",
       "posts.updatedAt"
-    );
+    )
+    .orderBy("createdAt", "desc");
 
 export const createPost = async (post: Partial<Posts>) =>
   await db<Posts>("posts").insert(post).returning("*");
