@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { useMutation, useQueryClient } from "react-query";
 
 import { User } from "../../pages";
@@ -6,16 +7,18 @@ import NavigationLink from "../commons/NavigationLink";
 
 interface Props {
   user: User;
+  loadLogout: (_: boolean) => void;
 }
 
 const logoutQuery = queryBuilder("/auth/logout", "post", {});
 
-const Navigation = ({ user }: Props) => {
-  const queryClient = useQueryClient();
+const Navigation = ({ user, loadLogout }: Props) => {
+  const router = useRouter();
   const mutation = useMutation(() => logoutQuery(), {
     onSuccess: (data, _v) => {
       if (data.success) {
-        queryClient.invalidateQueries();
+        loadLogout(true);
+        router.push("/auth");
       }
     },
   });

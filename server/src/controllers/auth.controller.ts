@@ -168,12 +168,18 @@ export const verify: RequestHandler = async (req, res, _next) => {
 };
 
 export const logout: RequestHandler = async (req, res, _next) => {
-  req.session.destroy(() => {});
-  const response: ControllerResponse = {
-    success: true,
-    message: "Logout successful!",
-  };
-  res.send(response);
+  req.session.destroy(() => {
+    res.clearCookie("imgn_sid", {
+      httpOnly: true,
+      secure: process.env["NODE_ENV"] === "production",
+      sameSite: "lax",
+    });
+    const response: ControllerResponse = {
+      success: true,
+      message: "Logout successful!",
+    };
+    res.send(response);
+  });
 };
 
 export const authorize: RequestHandler = async (req, _res, next) => {

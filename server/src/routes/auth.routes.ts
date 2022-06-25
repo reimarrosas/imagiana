@@ -15,7 +15,7 @@ router.post("/signup", signup);
 router.post("/login", login);
 router.get("/verify", verify);
 router.post("/logout", logout);
-router.post("/status", authorize, (req, res) => {
+router.get("/status", authorize, (req, res) => {
   const response: ControllerResponse = {
     message: "User is logged in!",
     success: true,

@@ -18,7 +18,7 @@ const Verify: NextPage = ({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const { isLoading, isIdle, data } = useQuery(
     "verificationEmail",
-    () => verificationQuery(vid),
+    verificationQuery(vid),
     singleUseQueryOption
   );
 
@@ -47,7 +47,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
   await queryClient.prefetchQuery(
     "verificationEmail",
-    () => verificationQuery(vid),
+    verificationQuery(vid),
     singleUseQueryOption
   );
 

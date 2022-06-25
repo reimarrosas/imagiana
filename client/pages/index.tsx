@@ -3,8 +3,7 @@ import type {
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useState } from "react";
 import { QueryClient, useQuery } from "react-query";
 
 import Navigation from "../components/home/Navigation";
@@ -23,22 +22,19 @@ export interface User {
 const Home: NextPage = ({
   user,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const router = useRouter();
-  const { data, isLoading, isFetching } = useQuery(
-    "authStatus",
-    authStatusQuery()
-  );
-
-  useEffect(() => {
-    if (!isFetching && !data?.success) {
-      router.push("/auth");
-    }
-  }, [isFetching]);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { isLoading } = useQuery("authStatus", authStatusQuery());
 
   return (
-    <div className={isLoading ? "grid place-content-center min-h-screen" : ""}>
-      <Loading isLoading={isLoading}>
-        <Navigation user={user} />
+    <div
+      className={
+        isLoading || isLoggingOut
+          ? "grid place-content-center min-h-screen"
+          : ""
+      }
+    >
+      <Loading isLoading={isLoading || isLoggingOut}>
+        <Navigation user={user} loadLogout={setIsLoggingOut} />
         <MainSection user={user} />
       </Loading>
     </div>
