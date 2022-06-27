@@ -1,4 +1,20 @@
-export type Post = PostInfo & PostContent & PostEffects;
+import { useCallback } from "react";
+import { QueryClient, useMutation, useQueryClient } from "react-query";
+import { queryBuilder } from "../../utils/queries/queryBuilder";
+
+/* === Types Section === */
+
+interface PostQueryResult {
+  message: string;
+  success: boolean;
+  query: Post[];
+}
+
+export type Post = PostInfo &
+  PostContent &
+  PostLikes & {
+    comments: Comment[];
+  };
 
 interface PostInfo {
   id: string;
@@ -14,10 +30,9 @@ interface PostContent {
   imageUrl: string;
 }
 
-interface PostEffects {
+interface PostLikes {
   id: string;
   likedByUser: boolean;
-  comments: Comment[];
 }
 
 interface Comment {
@@ -43,20 +58,56 @@ interface PostHeaderProps {
 
 interface PostMainProps {
   postContent: PostContent;
+  postLikes: PostLikes;
+}
+
+interface PostLikeProps {
+  postLikes: PostLikes;
 }
 
 interface PostAsideProps {
-  postEffects: PostEffects;
+  comments: Comment[];
   currentUserId: string;
 }
+
+/* === Post Header Section === */
+const deletePostMutationFunction = (id: string) =>
+  queryBuilder(`/posts/delete?id=${id}`, "delete", {})();
+
+const deletePostOnClientSide =
+  (queryClient: QueryClient) => (data: any, id: string) => {
+    if (data.success) {
+      queryClient.setQueryData<PostQueryResult>("getPosts", (prev) => {
+        if (prev) {
+          const { message, success, query } = prev;
+          const newQuery = query.filter((p) => p.id !== id);
+          return {
+            message,
+            success,
+            query: newQuery,
+          };
+        } else {
+          return {
+            message: "",
+            success: false,
+            query: [],
+          };
+        }
+      });
+    }
+  };
 
 const PostHeader = ({
   postInfo: { id, email, fullName, createdAt, userId },
   currentUserId,
 }: PostHeaderProps) => {
+  const queryClient = useQueryClient();
+  const deletePostMutation = useMutation(deletePostMutationFunction, {
+    onSuccess: deletePostOnClientSide(queryClient),
+  });
+
   const handleDeleteOnClick = () => {
-    // PASS
-    id = id;
+    deletePostMutation.mutate(id);
   };
 
   return (
@@ -84,32 +135,88 @@ const PostHeader = ({
 
 const PostMain = ({
   postContent: { description, imageUrl },
+  postLikes,
 }: PostMainProps) => (
   <section aria-label="Post contents." className="mt-4">
     <figure>
       <figcaption className="whitespace-pre-line">{description}</figcaption>
       <img src={imageUrl} className="my-2" alt="" />
     </figure>
+    <PostLike postLikes={postLikes} />
   </section>
 );
 
-const PostAside = ({
-  postEffects: { id, likedByUser, comments },
-  currentUserId,
-}: PostAsideProps) => {
+interface LikeMutationQueryParam {
+  likedByUser: boolean;
+  id: string;
+}
+
+/* === Post Like Section === */
+const likeMutationFunction = ({ likedByUser, id }: LikeMutationQueryParam) =>
+  queryBuilder(
+    `/likes/${likedByUser ? "unlike" : "like"}?id=${id}`,
+    likedByUser ? "delete" : "post",
+    {}
+  )();
+
+const modifyPostLikeOnClientSide =
+  (queryClient: QueryClient) =>
+  (data: any, { id, likedByUser }: LikeMutationQueryParam) => {
+    if (data.success) {
+      queryClient.setQueryData<PostQueryResult>("getPosts", (prev) => {
+        if (prev) {
+          const { message, success, query } = prev;
+          const newQuery = query.map((p) => {
+            const newP = { ...p };
+            if (p.id === id) {
+              newP.likedByUser = !likedByUser;
+            }
+            return newP;
+          });
+
+          return {
+            message,
+            success,
+            query: newQuery,
+          };
+        } else {
+          return {
+            message: "",
+            success: false,
+            query: [],
+          };
+        }
+      });
+    }
+  };
+
+const PostLike = ({ postLikes: { likedByUser, id } }: PostLikeProps) => {
+  const queryClient = useQueryClient();
+
+  const likeMutation = useMutation(likeMutationFunction, {
+    onSuccess: modifyPostLikeOnClientSide(queryClient),
+  });
+
+  const handleLikeOrUnlike = () => {
+    likeMutation.mutate({ likedByUser, id });
+  };
+
+  return (
+    <div>
+      <button onClick={handleLikeOrUnlike}>
+        {likedByUser ? "Dislike" : "Like"}
+      </button>
+    </div>
+  );
+};
+
+/* === Post Aside Section === */
+const PostAside = ({ comments, currentUserId }: PostAsideProps) => {
+  const handleUpdateOnClick = () => {};
   const handleDeleteOnClick = () => {};
 
   return (
     <aside>
-      <div>
-        <a
-          href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/likes/${
-            likedByUser ? "unlike" : "like"
-          }?id=${id}`}
-        >
-          {likedByUser ? "Dislike" : "Like"}
-        </a>
-      </div>
       <ul className="my-3">
         {comments?.map((c, ind) => (
           <li className="odd:bg-slate-200 p-3" key={ind}>
@@ -154,12 +261,13 @@ const PostAside = ({
   );
 };
 
+/* === Post Section === */
 const Post = ({ post, currentUserId }: PostProps) => {
   return (
     <article className="mx-1 shadow-lg rounded p-4 mt-8">
       <PostHeader postInfo={post} currentUserId={currentUserId} />
-      <PostMain postContent={post} />
-      <PostAside postEffects={post} currentUserId={currentUserId} />
+      <PostMain postContent={post} postLikes={post} />
+      <PostAside comments={post.comments} currentUserId={currentUserId} />
     </article>
   );
 };

@@ -15,8 +15,8 @@ const MainSection = ({ user }: Props) => {
     <main className="max-w-prose mx-auto pb-8">
       <CreatePostsForm />
       <Loading isLoading={isLoading}>
-        {data?.query?.map((p: PostType, ind: number) => (
-          <Post key={ind} post={p} currentUserId={user.id} />
+        {data?.query?.map((p: PostType) => (
+          <Post key={p.id} post={p} currentUserId={user.id} />
         ))}
       </Loading>
     </main>
