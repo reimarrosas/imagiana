@@ -19,6 +19,13 @@ export interface User {
   email: string;
 }
 
+export interface UserQueryData {
+  message: string;
+  error?: string;
+  success?: boolean;
+  user?: User;
+}
+
 const Home: NextPage = ({
   user,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {

@@ -36,13 +36,14 @@ export const create: RequestHandler = async (req, res, _next) => {
 
   const comment = await createComment(commentData);
 
-  if (comment.length === 0) {
+  if (!comment) {
     throw new Error("Comment insertion failed!");
   }
 
   const response: ControllerResponse = {
     message: "Comment creation successful!",
     success: true,
+    query: comment,
   };
 
   res.status(201).send(response);
@@ -54,7 +55,7 @@ export const update: RequestHandler = async (req, res, _next) => {
 
   const updated = await updateComment(
     { id: commentId, userId: req.session.user.id },
-    commentData
+    { ...commentData, updatedAt: new Date(Date.now()) }
   );
 
   if (updated === 0) {
