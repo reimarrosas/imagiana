@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "react-query";
 import { UserQueryData } from "../../pages";
 import { queryBuilder } from "../../utils/queries/queryBuilder";
 import MainButton from "../commons/MainButton";
-import { Post, PostQueryResult } from "../commons/Post";
+import { PostQueryResult } from "../commons/Post";
 
 interface PostData {
   imageData: string;
@@ -55,8 +55,11 @@ const CreatePostsForm = () => {
         const queryKey = "getPosts";
         if (!data.success || error) {
           queryClient.setQueryData(queryKey, previousPosts);
-        } else {
           setFailureText("Posting failed...");
+        } else {
+          setImageFile(null);
+          setIsImageValid(true);
+          setPostContent("");
         }
         queryClient.invalidateQueries(queryKey);
       },
