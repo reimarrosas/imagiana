@@ -37,6 +37,7 @@ app.use(
     secret: sessionSecret,
     resave: false,
     name: "imgn_sid",
+    proxy: true,
     cookie: {
       httpOnly: true,
       secure: process.env["NODE_ENV"] === "production",
