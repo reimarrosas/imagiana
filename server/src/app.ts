@@ -39,6 +39,7 @@ app.use(
     name: "imgn_sid",
     proxy: true,
     cookie: {
+      domain: clientUrl,
       httpOnly: true,
       secure: process.env["NODE_ENV"] === "production",
       sameSite: "lax",
