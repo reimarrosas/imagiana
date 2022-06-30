@@ -5,7 +5,7 @@ import { databaseUrl } from "../utils/constants";
 
 const config: Knex.Config = {
   client: "postgresql",
-  connection: databaseUrl,
+  connection: `${databaseUrl}?ssl=true`,
   pool: {
     min: 2,
     max: 10,
