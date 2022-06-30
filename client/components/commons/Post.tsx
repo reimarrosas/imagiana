@@ -77,10 +77,17 @@ interface PostAsideProps {
 const deletePostMutationFunction = (id: string) =>
   queryBuilder(`/posts/delete?id=${id}`, "delete", {})();
 
-const deletePostOnClientSide =
-  (queryClient: QueryClient) => (data: any, id: string) => {
-    if (data.success) {
-      queryClient.setQueryData<PostQueryResult>("getPosts", (prev) => {
+const PostHeader = ({
+  postInfo: { id, email, fullName, createdAt, userId },
+  currentUserId,
+}: PostHeaderProps) => {
+  const queryClient = useQueryClient();
+  const deletePostMutation = useMutation(deletePostMutationFunction, {
+    onMutate: async () => {
+      const queryKey = "getPosts";
+      await queryClient.cancelQueries(queryKey);
+      const previousPosts = queryClient.getQueryData<PostQueryResult>(queryKey);
+      queryClient.setQueryData<PostQueryResult>(queryKey, (prev) => {
         if (prev) {
           const { message, success, query } = prev;
           const newQuery = query.filter((p) => p.id !== id);
@@ -97,16 +104,15 @@ const deletePostOnClientSide =
           };
         }
       });
-    }
-  };
-
-const PostHeader = ({
-  postInfo: { id, email, fullName, createdAt, userId },
-  currentUserId,
-}: PostHeaderProps) => {
-  const queryClient = useQueryClient();
-  const deletePostMutation = useMutation(deletePostMutationFunction, {
-    onSuccess: deletePostOnClientSide(queryClient),
+      return previousPosts;
+    },
+    onSettled: (data, error, _v, previousPosts) => {
+      const queryKey = "getPosts";
+      if (!data.success || error) {
+        queryClient.setQueryData(queryKey, previousPosts);
+      }
+      queryClient.invalidateQueries(queryKey);
+    },
   });
 
   const handleDeleteOnClick = () => {
@@ -162,11 +168,15 @@ const likeMutationFunction = ({ likedByUser, id }: LikeMutationQueryParam) =>
     {}
   )();
 
-const modifyPostLikeOnClientSide =
-  (queryClient: QueryClient) =>
-  (data: any, { id, likedByUser }: LikeMutationQueryParam) => {
-    if (data.success) {
-      queryClient.setQueryData<PostQueryResult>("getPosts", (prev) => {
+const PostLike = ({ postLikes: { likedByUser, id } }: PostLikeProps) => {
+  const queryClient = useQueryClient();
+
+  const likeMutation = useMutation(likeMutationFunction, {
+    onMutate: async ({ likedByUser, id }) => {
+      const queryKey = "getPosts";
+      await queryClient.cancelQueries(queryKey);
+      const previousTodos = queryClient.getQueryData<PostQueryResult>(queryKey);
+      queryClient.setQueryData<PostQueryResult>(queryKey, (prev) => {
         if (prev) {
           const { message, success, query } = prev;
           const newQuery = query.map((p) => {
@@ -190,14 +200,16 @@ const modifyPostLikeOnClientSide =
           };
         }
       });
-    }
-  };
 
-const PostLike = ({ postLikes: { likedByUser, id } }: PostLikeProps) => {
-  const queryClient = useQueryClient();
-
-  const likeMutation = useMutation(likeMutationFunction, {
-    onSuccess: modifyPostLikeOnClientSide(queryClient),
+      return previousTodos;
+    },
+    onSettled: (data, error, _v, previousTodos) => {
+      const queryKey = "getPosts";
+      if (!data.success || error) {
+        queryClient.setQueryData(queryKey, previousTodos);
+      }
+      queryClient.invalidateQueries(queryKey);
+    },
   });
 
   const handleLikeOrUnlike = () => {

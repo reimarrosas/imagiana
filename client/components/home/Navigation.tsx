@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useMutation, useQueryClient } from "react-query";
 
-import { User } from "../../pages";
+import { User, UserQueryData } from "../../pages";
 import { queryBuilder } from "../../utils/queries/queryBuilder";
 import NavigationLink from "../commons/NavigationLink";
 
@@ -13,13 +13,29 @@ interface Props {
 const logoutQuery = queryBuilder("/auth/logout", "post", {});
 
 const Navigation = ({ user, loadLogout }: Props) => {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const mutation = useMutation(() => logoutQuery(), {
-    onSuccess: (data, _v) => {
-      if (data.success) {
-        loadLogout(true);
-        router.push("/auth");
+    onMutate: async () => {
+      loadLogout(true);
+      const queryKey = "authStatus";
+      await queryClient.cancelQueries(queryKey);
+      const previousAuthStatus =
+        queryClient.getQueryData<UserQueryData>(queryKey);
+      queryClient.setQueryData<UserQueryData>(queryKey, (_) => ({
+        message: "User is unauthenticated!",
+        error: "Error 401: Unauthorized --- User is unauthenticated!",
+      }));
+      router.push("/auth");
+      return previousAuthStatus;
+    },
+    onSettled: (data, error, _v, previousAuthStatus) => {
+      const queryKey = "authStatus";
+      if (!data.success || error) {
+        queryClient.setQueryData(queryKey, previousAuthStatus);
+        router.push("/");
       }
+      queryClient.invalidateQueries(queryKey);
     },
   });
 

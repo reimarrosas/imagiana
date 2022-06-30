@@ -1,7 +1,9 @@
 import { ChangeEventHandler, FormEventHandler, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
+import { UserQueryData } from "../../pages";
 import { queryBuilder } from "../../utils/queries/queryBuilder";
 import MainButton from "../commons/MainButton";
+import { Post, PostQueryResult } from "../commons/Post";
 
 interface PostData {
   imageData: string;
@@ -18,16 +20,45 @@ const CreatePostsForm = () => {
   const mutation = useMutation(
     (postData: PostData) => queryBuilder("/posts/create", "post", postData)(),
     {
-      onSuccess: (data, _v) => {
-        if (data.success) {
-          queryClient.invalidateQueries("getPosts");
-          setImageFile(null);
-          setIsImageValid(true);
-          setPostContent("");
-          setFailureText("");
+      onMutate: async (newPost) => {
+        const queryKey = "getPosts";
+        await queryClient.cancelQueries(queryKey);
+
+        const previousPosts =
+          queryClient.getQueryData<PostQueryResult>(queryKey);
+
+        const userData = queryClient.getQueryData<UserQueryData>("authStatus");
+
+        queryClient.setQueryData<PostQueryResult>(queryKey, (prev) => ({
+          success: prev?.success ?? false,
+          message: prev?.message ?? "",
+          query: [
+            ...(prev?.query ?? []),
+            {
+              id: `${parseInt(prev?.query[0]?.id ?? "0") + 1}`,
+              description: newPost.description,
+              likedByUser: false,
+              imageUrl: newPost.imageData,
+              userId: userData?.user?.id ?? "0",
+              email: userData?.user?.email ?? "",
+              fullName: userData?.user?.fullName ?? "",
+              comments: [],
+              createdAt: new Date(Date.now()).toLocaleString(),
+              updatedAt: new Date(Date.now()).toLocaleString(),
+            },
+          ],
+        }));
+
+        return previousPosts;
+      },
+      onSettled: (data, error, _v, previousPosts) => {
+        const queryKey = "getPosts";
+        if (!data.success || error) {
+          queryClient.setQueryData(queryKey, previousPosts);
         } else {
-          setFailureText("Posting failed!");
+          setFailureText("Posting failed...");
         }
+        queryClient.invalidateQueries(queryKey);
       },
     }
   );
