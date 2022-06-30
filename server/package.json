@@ -8,8 +8,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon src/server.ts",
-    "tsc": "tsc",
-    "start": "yarn tsc && node dist/server.js",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "postInstall": "yarn build &&  yarn migrate:latest",
     "migrate:make": "knex --knexfile ./src/db/knexfile.ts migrate:make -x ts",
     "migrate:latest": "knex --knexfile ./src/db/knexfile.ts migrate:latest",
     "migrate:rollback": "knex --knexfile ./src/db/knexfile.ts migrate:rollback"
