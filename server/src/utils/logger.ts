@@ -1,12 +1,11 @@
 import bunyan from "bunyan";
-import path from "path";
 
 const loggerOptions: bunyan.LoggerOptions = {
   name: "Imagiana",
   streams: [
     {
       level: "warn",
-      path: path.join(__dirname, "..", "..", "logs", "imgn-error.log"),
+      stream: process.stderr,
     },
   ],
   serializers: bunyan.stdSerializers,
