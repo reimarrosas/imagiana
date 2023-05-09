@@ -27,12 +27,3 @@ These will be the user stories that the describes the features of Imagiana.
 2. In order to remove unnecessary comments, As a user, I should be able to delete MY comments.
 3. In order to fix any mistakes in a comments, As a user, I should be able to edit MY comments.
 4. In order to see what people think on a post, As a user, I should be able to see all comments in a post.
-
-## Sorting
-1. In order to view posts based on the number of likes, As a user, I should be able to sort posts by number of likes.
-2. In order to view posts based on the number of comments, As a user, I should be able to sort posts by number of comments.
-3. In order to view posts based on the time posted, As a user, I should be able to sort posts by creation date.
-
-## Pagination
-1. In order to not waste any bandwidth, As a user, I should be able to see posts incrementally.
-2. In order to set my preference on the frequency of loads, As a user, I should be able to set the number of posts viewed per page load.

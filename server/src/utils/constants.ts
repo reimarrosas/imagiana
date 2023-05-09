@@ -12,4 +12,4 @@ export const urlRoot = process.env["URL_ROOT"] ?? `http://localhost:${port}`;
 
 export const cloudinaryMaxDataUriLength = 62_500_000;
 
-export const clientUrl = process.env["CLIENT_URL"];
+export const clientUrl = process.env["CLIENT_URL"] ?? 'http://localhost:3000';

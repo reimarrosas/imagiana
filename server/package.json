@@ -12,7 +12,9 @@
     "start": "yarn tsc && node dist/server.js",
     "migrate:make": "knex --knexfile ./src/db/knexfile.ts migrate:make -x ts",
     "migrate:latest": "knex --knexfile ./src/db/knexfile.ts migrate:latest",
-    "migrate:rollback": "knex --knexfile ./src/db/knexfile.ts migrate:rollback"
+    "migrate:rollback": "knex --knexfile ./src/db/knexfile.ts migrate:rollback",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
   },
   "dependencies": {
     "argon2": "^0.28.5",
